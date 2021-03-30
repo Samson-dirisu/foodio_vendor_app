@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:foodie_vendor_app/screens/auth_screen.dart';
 
-import 'home_screen.dart';
+import 'package:foodie_vendor_app/screens/auth_screens/sign_up_screen.dart';
+import 'landing_screens/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   static const String id = "splash-screen";
@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
       () {
         FirebaseAuth.instance.authStateChanges().listen((User user) {
           if (user == null) {
-            Navigator.pushReplacementNamed(context, AuthScreen.id);
+            Navigator.pushReplacementNamed(context, SignUpScreen.id);
           } else {
             Navigator.pushReplacementNamed(context, HomeScreen.id);
           }

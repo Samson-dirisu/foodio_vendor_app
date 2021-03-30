@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:foodie_vendor_app/screens/auth_screen.dart';
-import 'package:foodie_vendor_app/screens/home_screen.dart';
+import 'package:foodie_vendor_app/providers/app_provider.dart';
+import 'package:foodie_vendor_app/providers/auth_provider.dart';
+import 'package:foodie_vendor_app/screens/auth_screens/sign_up_screen.dart';
+import 'package:foodie_vendor_app/screens/landing_screens/home_screen.dart';
 import 'package:foodie_vendor_app/screens/splash_screen.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => AppProvider()),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -20,7 +31,7 @@ class MyApp extends StatelessWidget {
       initialRoute: SplashScreen.id,
       routes: {
         SplashScreen.id: (context) => SplashScreen(),
-        AuthScreen.id: (context) => AuthScreen(),
+        SignUpScreen.id: (context) => SignUpScreen(),
         HomeScreen.id: (context) => HomeScreen(),
       },
     );
