@@ -11,11 +11,13 @@ class SignUpScreen extends StatelessWidget {
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(20.0),
-            child: Column(
-              children: [
-                ShopPicCard(),
-                RegisterForm(),
-              ],
+            child: SingleChildScrollView(
+                          child: Column(
+                children: [
+                  ShopPicCard(),
+                  RegisterForm(),
+                ],
+              ),
             ),
           ),
         ),
