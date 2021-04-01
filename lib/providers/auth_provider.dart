@@ -1,24 +1,31 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:geocoder/model.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
 
+// My exports
+import 'package:image_picker/image_picker.dart';
+
 class AuthProvider with ChangeNotifier {
+  // Public Variables
   final picker = ImagePicker();
   String pickerError = "";
   bool isPicAvailable = false;
+  FirebaseAuth _auth = FirebaseAuth.instance;
+  String error = '';
 
-  //private variables
+  //Private Variables
   File _image;
   double _shopLatitude;
   double _shopLongitude;
   String _shopAddress;
   String _placeName;
 
-  // getters
+  // Getters
   File get image => this._image;
   double get shopLongitude => this._shopLongitude;
   double get shopLatitude => this._shopLatitude;
@@ -41,6 +48,7 @@ class AuthProvider with ChangeNotifier {
     return this.image;
   }
 
+  // function for getting current address of users
   Future getCurrentAddress() async {
     Location location = new Location();
 
@@ -80,5 +88,45 @@ class AuthProvider with ChangeNotifier {
     this._placeName = address.featureName;
     notifyListeners();
     return address;
+  }
+
+  // Register vendor using email
+  Future<UserCredential> registerVendor(email, password) async {
+    UserCredential userCredential;
+    try {
+      userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        this.error = "The Password provided is too weak";
+        notifyListeners();
+      } else if (e.code == 'email-already-in-use') {
+        this.error = "The account already exists for that email";
+        notifyListeners();
+      }
+    } catch (e) {
+      this.error = e.toString();
+      notifyListeners();
+    }
+    return userCredential;
+  }
+
+  // Function to upload file to firebase storage
+  Future<String> uploadFile( filePath, String name) async {
+    File file = File(filePath);
+
+    FirebaseStorage _storage = FirebaseStorage.instance;
+
+    try {
+      await _storage.ref('uploads/shopProfilePic/$name').putFile(file);
+    } on FirebaseException catch (e) {
+      // e.g, e.code == 'canceled'
+      print(e.code);
+    }
+    String downloadURL =
+        await _storage.ref('uploads/shopProfilePic/$name').getDownloadURL();
+    return downloadURL;
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:foodie_vendor_app/providers/app_provider.dart';
@@ -10,7 +12,7 @@ class RegisterForm extends StatelessWidget {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  var _addressController = TextEditingController();
+  final _nameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +26,7 @@ class RegisterForm extends StatelessWidget {
           // Business name TextFormField
           CustomTextFormField(
             labelText: "Business Name",
+            controller: _nameController,
             prefixIcon: Icon(Icons.add_business_outlined),
             validator: (value) {
               if (value.isEmpty) {
@@ -36,6 +39,8 @@ class RegisterForm extends StatelessWidget {
           // Mobile Number TextFormField
           CustomTextFormField(
             labelText: "Mobile Number",
+            prefixText: "+234  ",
+            maxLength: 10,
             keyboardType: TextInputType.phone,
             prefixIcon: Icon(Icons.phone_android),
             validator: (value) {
@@ -148,9 +153,21 @@ class RegisterForm extends StatelessWidget {
                   onPressed: () {
                     if (_authData.isPicAvailable) {
                       if (_formKey.currentState.validate()) {
-                        if (_authData.isPicAvailable) {}
-                        Scaffold.of(context).showSnackBar(
-                            SnackBar(content: Text('Processing Data')));
+                        _authData
+                            .registerVendor(
+                                _emailController.text, _passwordController.text)
+                            .then((credential) {
+                          if (credential.user.uid != null) {
+                            _authData
+                                .uploadFile(
+                                  _authData.image,
+                                  _nameController.text,
+                                )
+                                .then((value) {
+                                  
+                                });
+                          }
+                        });
                       }
                     } else {
                       Scaffold.of(context).showSnackBar(SnackBar(
