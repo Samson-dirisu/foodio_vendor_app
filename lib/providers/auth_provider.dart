@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +14,14 @@ import 'package:image_picker/image_picker.dart';
 class AuthProvider with ChangeNotifier {
   // Public Variables
   final picker = ImagePicker();
-  String pickerError = "";
+  String pickerError = '';
   bool isPicAvailable = false;
-  FirebaseAuth _auth = FirebaseAuth.instance;
   String error = '';
+  String _collection = "vendors";
+  String email = '';
+
+  FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   //Private Variables
   File _image;
@@ -92,6 +97,8 @@ class AuthProvider with ChangeNotifier {
 
   // Register vendor using email
   Future<UserCredential> registerVendor(email, password) async {
+    this.email = email;
+    notifyListeners();
     UserCredential userCredential;
     try {
       userCredential = await _auth.createUserWithEmailAndPassword(
@@ -114,7 +121,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   // Function to upload file to firebase storage
-  Future<String> uploadFile( filePath, String name) async {
+  Future<String> uploadFile(String filePath, String name) async {
     File file = File(filePath);
 
     FirebaseStorage _storage = FirebaseStorage.instance;
@@ -128,5 +135,31 @@ class AuthProvider with ChangeNotifier {
     String downloadURL =
         await _storage.ref('uploads/shopProfilePic/$name').getDownloadURL();
     return downloadURL;
+  }
+
+  // save vendor data to firestore
+  Future<void> saveVendorDataToDb({
+    String url,
+    String shopName,
+    String mobile,
+    String dialog,
+  }) {
+    User user = FirebaseAuth.instance.currentUser;
+    DocumentReference _vendors =
+        _firestore.collection(_collection).doc(user.uid);
+    _vendors.set({
+      "uid": user.uid,
+      "shopName": shopName,
+      "mobile": mobile,
+      "dialog": dialog,
+      "email": this.email,
+      "address": "${this._placeName} : ${this.shopAddress}",
+      "location": GeoPoint(this._shopLatitude, this._shopLongitude),
+      "shopOpen": true,
+      "rating": 0.00,
+      "totalRating": 0,
+      "isTopPicked": true,
+    });
+    return null;
   }
 }

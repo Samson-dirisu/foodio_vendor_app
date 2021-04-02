@@ -30,25 +30,23 @@ class CustomTextFormField extends StatelessWidget {
     Color _primaryColor = Theme.of(context).primaryColor;
     return Padding(
       padding: const EdgeInsets.all(3.0),
-      child: Container(
-        child: TextFormField(
-          validator: this.validator,
-          controller: this.controller,
-          maxLines: this.maxLines ?? 1,
-          maxLength: this.maxLength,
-          obscureText: this.obscureText ?? false,
-          keyboardType: this.keyboardType ?? TextInputType.text,
-          decoration: InputDecoration(
-            prefixIcon: this.prefixIcon,
-            prefixText: this.prefixText ?? null,
-            suffixIcon: this.suffixIcon,
-            labelText: this.labelText,
-            contentPadding: this.contentPadding ?? EdgeInsets.zero,
-            border: OutlineInputBorder(
-                borderSide: BorderSide(width: 2, color: Colors.grey)),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(width: 2, color: _primaryColor),
-            ),
+      child: TextFormField(
+        validator: this.validator,
+        controller: this.controller,
+        maxLines: this.maxLines ?? 1,
+        maxLength: this.maxLength,
+        obscureText: this.obscureText ?? false,
+        keyboardType: this.keyboardType ?? TextInputType.text,
+        decoration: InputDecoration(
+          prefixIcon: this.prefixIcon,
+          prefixText: this.prefixText ?? null,
+          suffixIcon: this.suffixIcon,
+          labelText: this.labelText,
+          contentPadding: this.contentPadding ?? EdgeInsets.zero,
+          border: OutlineInputBorder(
+              borderSide: BorderSide(width: 2, color: Colors.grey)),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(width: 2, color: _primaryColor),
           ),
         ),
       ),
