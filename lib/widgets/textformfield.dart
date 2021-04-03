@@ -38,6 +38,7 @@ class CustomTextFormField extends StatelessWidget {
         obscureText: this.obscureText ?? false,
         keyboardType: this.keyboardType ?? TextInputType.text,
         decoration: InputDecoration(
+          counterText: '',
           prefixIcon: this.prefixIcon,
           prefixText: this.prefixText ?? null,
           suffixIcon: this.suffixIcon,

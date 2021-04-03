@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:foodie_vendor_app/providers/app_provider.dart';
 import 'package:foodie_vendor_app/providers/auth_provider.dart';
 import 'package:foodie_vendor_app/screens/landing_screens/home_screen.dart';
+import 'package:foodie_vendor_app/util/constants.dart';
 import 'package:foodie_vendor_app/util/navigators.dart';
 import 'package:provider/provider.dart';
 
@@ -27,9 +28,11 @@ class SubmitButton extends StatelessWidget {
     Color _primaryColor = Theme.of(context).primaryColor;
 
     // method for displaying scaffold messages
-    ScaffoldFeatureController scaffoldMsg(String msg) {
+    ScaffoldFeatureController scaffoldMsg( String msg) {
       return Scaffold.of(context).showSnackBar(SnackBar(content: Text(msg)));
     }
+
+    
 
     // providers
     final _authData = Provider.of<AuthProvider>(context);
@@ -69,6 +72,7 @@ class SubmitButton extends StatelessWidget {
                             dialog: this.shopDialogController.text,
                           );
                           this.formKey.currentState.reset();
+                          _appProvider.addressController.clear();
                           _appProvider.changeIsLoading(false);
                           // if all is well and good, move to homescreen
                           _nav.pushReplacement(

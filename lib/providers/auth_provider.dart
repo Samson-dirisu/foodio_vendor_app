@@ -159,7 +159,26 @@ class AuthProvider with ChangeNotifier {
       "rating": 0.00,
       "totalRating": 0,
       "isTopPicked": true,
+      "accVerified": true
     });
     return null;
+  }
+
+  // Logging in with email and password
+  Future<UserCredential> loggingVendor(String email, String password) async {
+    UserCredential userCredential;
+    try {
+      userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    } on FirebaseAuthException catch (e) {
+      this.error = e.code; 
+      notifyListeners();
+    } catch (e) {
+      this.error = e.toString();
+      notifyListeners();
+    }
+    return userCredential;
   }
 }
