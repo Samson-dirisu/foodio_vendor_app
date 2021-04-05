@@ -1,12 +1,18 @@
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:foodie_vendor_app/providers/app_provider.dart';
-import 'package:foodie_vendor_app/providers/auth_provider.dart';
-import 'package:foodie_vendor_app/widgets/submit_button.dart';
-import 'package:foodie_vendor_app/widgets/textformfield.dart';
 import 'package:provider/provider.dart';
 
+// My Exports
+import 'package:foodie_vendor_app/providers/app_provider.dart';
+import 'package:foodie_vendor_app/providers/auth_provider.dart';
+import 'package:foodie_vendor_app/screens/landing_screens/home_screen.dart';
+import 'package:foodie_vendor_app/util/constants.dart';
+import 'package:foodie_vendor_app/util/navigators.dart';
+import 'package:foodie_vendor_app/widgets/submit_button.dart';
+import 'package:foodie_vendor_app/widgets/textformfield.dart';
+import 'package:email_validator/email_validator.dart';
+
 class RegisterForm extends StatelessWidget {
+  // Private variables
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _mobileController = TextEditingController();
@@ -14,6 +20,13 @@ class RegisterForm extends StatelessWidget {
   final _confirmPasswordController = TextEditingController();
   final _nameController = TextEditingController();
   final _shopDialogController = TextEditingController();
+
+  // Public Variables
+  final GlobalKey<ScaffoldState> refkey;
+
+  RegisterForm({this.refkey});
+
+  final Nav _nav = Nav();
 
   @override
   Widget build(BuildContext context) {
@@ -137,9 +150,8 @@ class RegisterForm extends StatelessWidget {
                       return "Please press the Navigation Icon by your right";
                     }
                     if (_authData.shopLatitude == null) {
-                      Scaffold.of(context).showSnackBar(SnackBar(
-                          content:
-                              Text('Couldn\'t find location...Try again')));
+                      scaffoldMsg(
+                          'Couldn\'t find location...Try again', this.refkey);
                     }
 
                     return null;
@@ -158,12 +170,62 @@ class RegisterForm extends StatelessWidget {
 
                 // submit button
                 SubmitButton(
-                  emailController: this._emailController,
-                  mobileController: this._mobileController,
-                  shopDialogController: this._shopDialogController,
-                  nameController: this._nameController,
-                  passwordController: this._passwordController,
-                  formKey: this._formKey,
+                  child: Text(
+                    "Register",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onPressed: () {
+                    if (_authData.isPicAvailable) {
+                      // check if form requirement are meant
+                      if (this._formKey.currentState.validate()) {
+                        _appProvider.changeIsLoading(false);
+                        _authData
+                            .registerVendor(
+                                _emailController.text, _passwordController.text)
+                            .then(
+                          (credential) {
+                            if (credential.user.uid != null) {
+                              _authData
+                                  .uploadFile(
+                                _authData.image.path,
+                                _nameController.text,
+                              )
+                                  .then((url) {
+                                // if url is available, save vendor data to firestore
+                                if (url != null) {
+                                  _authData.saveVendorDataToDb(
+                                    url: url,
+                                    mobile: this._mobileController.text,
+                                    shopName: this._nameController.text,
+                                    dialog: this._shopDialogController.text,
+                                  );
+                                  this._formKey.currentState.reset();
+                                  _appProvider.addressController.clear();
+                                  _appProvider.changeIsLoading(false);
+                                  // if all is well and good, move to homescreen
+                                  _nav.pushReplacement(
+                                    context: context,
+                                    destination: HomeScreen(),
+                                  );
+                                } else {
+                                  scaffoldMsg(
+                                      "Failed to upload shop profile picture",
+                                      this.refkey);
+                                }
+                              });
+                            } else {
+                              scaffoldMsg(_authData.error, this.refkey);
+                            }
+                          },
+                        );
+                      }
+                    } else {
+                      scaffoldMsg('Shop Profile Picture is needed', this.refkey);
+                    }
+                  },
                 ),
               ],
             ),

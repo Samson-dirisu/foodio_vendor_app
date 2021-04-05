@@ -39,7 +39,7 @@ class AppProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // functionto make password field visible or not
+  // function to make password field visible or not
   void togglePassword() {
     this._showPassword = !this._showPassword;
     notifyListeners();

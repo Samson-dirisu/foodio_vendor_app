@@ -1,32 +1,35 @@
 
-
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:email_validator/email_validator.dart';
+
+// my packages
+import 'package:foodie_vendor_app/util/constants.dart';
+import 'package:foodie_vendor_app/widgets/reset_password.dart';
+import 'package:foodie_vendor_app/widgets/submit_button.dart';
 import 'package:foodie_vendor_app/providers/app_provider.dart';
 import 'package:foodie_vendor_app/providers/auth_provider.dart';
 import 'package:foodie_vendor_app/screens/landing_screens/home_screen.dart';
-import 'package:foodie_vendor_app/util/constants.dart';
 import 'package:foodie_vendor_app/util/navigators.dart';
 import 'package:foodie_vendor_app/widgets/textformfield.dart';
-import 'package:provider/provider.dart';
 
 class SignInScreen extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
+  final _key = GlobalKey<ScaffoldState>();
+   final Nav _nav = Nav();
+
+  // Controllers
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final Nav _nav = Nav();
   @override
   Widget build(BuildContext context) {
     final _appProvider = Provider.of<AppProvider>(context);
     final _authData = Provider.of<AuthProvider>(context);
-
-    // method for displaying scaffold messages
-     scaffoldMsg(String msg) {
-      return Scaffold.of(context).showSnackBar(SnackBar(content: Text(msg)));
-    }
+    
     return Scaffold(
+      key: _key,
       body: SafeArea(
-              child: Form(
+        child: Form(
           key: _formKey,
           child: Padding(
             padding: const EdgeInsets.all(20.0),
@@ -47,6 +50,8 @@ class SignInScreen extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 20),
+
+                  // Email text field
                   CustomTextFormField(
                     labelText: 'Email',
                     controller: _emailController,
@@ -64,6 +69,8 @@ class SignInScreen extends StatelessWidget {
                     },
                   ),
                   SizedBox(height: 20),
+
+                  // Password textfield
                   CustomTextFormField(
                     labelText: 'Password',
                     controller: _passwordController,
@@ -87,40 +94,60 @@ class SignInScreen extends StatelessWidget {
                     },
                     prefixIcon: Icon(Icons.vpn_key_outlined),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 10),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Expanded(
-                        child: FlatButton(
+                        child: InkWell(
                           child: Text(
-                            "Login",
+                            "Forgot Password?",
+                            textAlign: TextAlign.end,
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Colors.blue,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          color: Theme.of(context).primaryColor,
-                          onPressed: () {
-                            if (_formKey.currentState.validate()) {
-                              _authData
-                                  .loggingVendor(_emailController.text,
-                                      _passwordController.text)
-                                  .then(
-                                (credential) {
-                                  if (credential != null) {
-                                    _nav.pushReplacement(
-                                        context: context,
-                                        destination: HomeScreen());
-                                  } else {
-                                    scaffoldMsg("Logging failed");
-                                  }
-                                },
-                              );
-                            }
+                          onTap: () {
+                            _nav.push(
+                                context: context, destination: ResetPassword());
                           },
                         ),
                       ),
                     ],
+                  ),
+                  SizedBox(height: 20),
+
+                  // Login button
+                  SubmitButton(
+                    child: _appProvider.isLoading
+                        ? LinearProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        )
+                        : Text(
+                            "Sign in",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                    onPressed: () {
+                      if (_formKey.currentState.validate()) {
+                        _appProvider.changeIsLoading(true);
+                        _authData
+                            .loggingVendor(
+                                _emailController.text, _passwordController.text)
+                            .then(
+                          (credential) {
+                            if (credential != null) {
+                              _appProvider.changeIsLoading(false);
+                              _nav.pushReplacement(
+                                  context: context, destination: HomeScreen());
+                            } else {
+                              _appProvider.changeIsLoading(false);
+                              scaffoldMsg(_authData.error, _key);
+                            }
+                          },
+                        );
+                      }
+                    },
                   ),
                 ],
               ),

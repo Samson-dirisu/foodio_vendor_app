@@ -1,10 +1,10 @@
 import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 // my imports
 import 'package:foodie_vendor_app/screens/auth_screens/sign_in.dart';
+import 'package:foodie_vendor_app/screens/auth_screens/sign_up_screen.dart';
 import 'package:foodie_vendor_app/util/navigators.dart';
 import 'landing_screens/home_screen.dart';
 

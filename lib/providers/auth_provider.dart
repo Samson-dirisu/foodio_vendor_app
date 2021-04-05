@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:foodie_vendor_app/widgets/reset_password.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:geocoder/model.dart';
 import 'package:location/location.dart';
@@ -19,7 +20,8 @@ class AuthProvider with ChangeNotifier {
   String error = '';
   String _collection = "vendors";
   String email = '';
-
+  
+  // Firebase and firestore instance object
   FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -176,9 +178,22 @@ class AuthProvider with ChangeNotifier {
       this.error = e.code; 
       notifyListeners();
     } catch (e) {
-      this.error = e.toString();
+      this.error = e.code();
       notifyListeners();
     }
     return userCredential;
+  }
+
+  // Reset Password 
+   Future<void> resetPassword(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail( email: email);
+    } on FirebaseAuthException catch (e) {
+      this.error = e.code; 
+      notifyListeners();
+    } catch (e) {
+      this.error = e.code();
+      notifyListeners();
+    }
   }
 }
